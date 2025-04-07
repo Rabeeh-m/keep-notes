@@ -4,7 +4,9 @@
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import api from '../utils/api';
+import api from '../utils/api'; // Adjusted import path
+import { motion, AnimatePresence } from 'framer-motion';
+
 
 interface Note {
   note_id: string;
@@ -90,91 +92,134 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-white text-black p-8">
-      {/* Greeting */}
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold absolute top-20 left-8">Good Morning, {user?.user_name || 'User'}!</h1>
-
+        {/* Greeting with Animation */}
+        <motion.h1
+          className="text-3xl font-bold absolute top-20 left-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          Good Morning, {user?.user_name || 'User'}!
+        </motion.h1>
 
         {/* Notes List as Cards */}
         <div className="max-w-6xl mx-auto mt-12">
-          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+          {error && (
+            <motion.p
+              className="text-red-500 mb-4 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {error}
+            </motion.p>
+          )}
           {notes.length === 0 ? (
-            <p className="text-center">Loading..</p>
+            <motion.p
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              Loading..
+            </motion.p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {notes.map((note) => (
-                <div
+                <motion.div
                   key={note.note_id}
                   className="bg-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-gray-200 transition-colors border border-black min-h-[200px] flex flex-col justify-between"
                   onClick={() => openModal(note)}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  whileHover={{ scale: 1.02 }}
                 >
                   <div className="flex flex-col space-y-4">
-                    <div className="pb-2 border-b ">
-                      <h3 className="text-xl font-semibold text-black truncate">{note.note_title}</h3>
-                    </div>
-
-                    <div className="py-2 ">
+                  <div className="pb-2 border-b flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-black truncate">
+                      {note.note_title}
+                    </h3>
+                    <span role="img" aria-label="target">🎯</span>
+                  </div>
+                    <div className="py-2">
                       <p className="text-base text-black line-clamp-3">{note.note_content}</p>
                     </div>
-
                     <div className="pt-8">
-                      <p className="text-xs text-gray-600">Last Updated: {new Date(note.last_update).toLocaleString()}</p>
+                      <p className="text-xs text-gray-600">
+                        Last Updated: {new Date(note.last_update).toLocaleString()}
+                      </p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Modal for Edit/Delete */}
-        {isModalOpen && selectedNote && (
-          <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg w-full max-w-md border-1 border-black">
-              <h2 className="text-xl font-bold mb-4">Edit Note</h2>
-              {error && <p className="text-red-500 mb-4">{error}</p>}
-              <form onSubmit={handleUpdateNote} className="space-y-4">
-                <input
-                  type="text"
-                  value={noteTitle}
-                  onChange={(e) => setNoteTitle(e.target.value)}
-                  placeholder="Note Title"
-                  required
-                  className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
-                />
-                <textarea
-                  value={noteContent}
-                  onChange={(e) => setNoteContent(e.target.value)}
-                  placeholder="Note Content"
-                  required
-                  className="w-full px-4 py-2 rounded-lg bg-whie text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
-                  rows={4}
-                />
-                <div className="flex space-x-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-green-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeleteNote}
-                    className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </form>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="mt-4 w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+        {/* Modal for Edit/Delete with Animation */}
+        <AnimatePresence>
+          {isModalOpen && selectedNote && (
+            <motion.div
+              className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div
+                className="bg-white p-6 rounded-lg w-full max-w-md border-1 border-black"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
               >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+                <h2 className="text-xl font-bold mb-4">Edit Note</h2>
+                {error && <p className="text-red-500 mb-4">{error}</p>}
+                <form onSubmit={handleUpdateNote} className="space-y-4">
+                  <input
+                    type="text"
+                    value={noteTitle}
+                    onChange={(e) => setNoteTitle(e.target.value)}
+                    placeholder="Note Title"
+                    required
+                    className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
+                  />
+                  <textarea
+                    value={noteContent}
+                    onChange={(e) => setNoteContent(e.target.value)}
+                    placeholder="Note Content"
+                    required
+                    className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white" // Fixed typo 'bg-whie' to 'bg-white'
+                    rows={4}
+                  />
+                  <div className="flex space-x-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-green-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteNote}
+                      className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </form>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="mt-4 w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+                >
+                  Close
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
