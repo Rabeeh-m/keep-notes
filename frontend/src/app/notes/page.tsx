@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import api from '../../utils/api';
+import TiptapEditor from '../../components/TiptapEditor';
 
 interface Note {
   note_id: string;
@@ -36,7 +37,7 @@ export default function Notes() {
       setNoteTitle('');
       setNoteContent('');
       setIsModalOpen(false);
-      router.push('/'); // Redirect to home after creation
+      router.push('/');
     } catch (err) {
       console.error('Failed to create note:', err);
       setError('Failed to create note');
@@ -48,8 +49,7 @@ export default function Notes() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-8 text-white">
-      {/* Modal for Creating Note */}
+    <div className="min-h-screen bg-white flex items-center justify-center p-8 text-black">
       {isModalOpen && (
         <div className="fixed inset-0 bg-white bg-opacity-30 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md border border-black">
@@ -64,18 +64,11 @@ export default function Notes() {
                 required
                 className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
               />
-              <textarea
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
-                placeholder="Note Content"
-                required
-                className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                rows={4}
-              />
+              <TiptapEditor content={noteContent} onChange={setNoteContent} />
               <div className="flex space-x-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-green-700 text-white py-2 rounded-lg font-semibold hover:bg-green-900 transition-colors border border-gray-700"
+                  className="flex-1 bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors border border-gray-700"
                 >
                   Create Note
                 </button>
@@ -83,9 +76,9 @@ export default function Notes() {
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false);
-                    router.push('/'); // Go back to home if canceled
+                    router.push('/');
                   }}
-                  className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-800 transition-colors border border-gray-600"
+                  className="flex-1 bg-white text-black py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors border border-gray-600"
                 >
                   Cancel
                 </button>

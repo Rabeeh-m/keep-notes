@@ -4,9 +4,9 @@
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import api from '../utils/api'; // Adjusted import path
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import TiptapEditor from '../components/TiptapEditor';
 
 interface Note {
   note_id: string;
@@ -18,7 +18,7 @@ interface Note {
 }
 
 export default function Dashboard() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -93,7 +93,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white text-black p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Greeting with Animation */}
         <motion.h1
           className="text-3xl font-bold absolute top-20 left-8"
           initial={{ opacity: 0, y: -20 }}
@@ -103,7 +102,6 @@ export default function Dashboard() {
           Good Morning, {user?.user_name || 'User'}!
         </motion.h1>
 
-        {/* Notes List as Cards */}
         <div className="max-w-6xl mx-auto mt-12">
           {error && (
             <motion.p
@@ -122,32 +120,33 @@ export default function Dashboard() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              Loading..
+              
             </motion.p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {notes.map((note) => (
+              {notes.map((note, index) => (
                 <motion.div
                   key={note.note_id}
-                  className="bg-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-gray-200 transition-colors border border-black min-h-[200px] flex flex-col justify-between"
+                  className="bg-white p-6 rounded-xl shadow-lg cursor-pointer hover:bg-gray-200 transition-colors border border-black min-h-[200px] flex flex-col justify-between "
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeOut' }}
+                  whileHover={{ scale: 1.03, boxShadow: '0 10px 20px rgba(0, 0, 0, 0.2)' }}
                   onClick={() => openModal(note)}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                  whileHover={{ scale: 1.02 }}
                 >
                   <div className="flex flex-col space-y-4">
-                  <div className="pb-2 border-b flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-black truncate">
-                      {note.note_title}
-                    </h3>
-                    <span role="img" aria-label="target">🎯</span>
-                  </div>
-                    <div className="py-2">
-                      <p className="text-base text-black line-clamp-3">{note.note_content}</p>
+                    <div className="pb-2 border-b flex justify-between items-center">
+                      <h3 className="text-xl font-semibold text-black truncate">{note.note_title}</h3>
+                      <span role="img" aria-label="target">🎯</span>
                     </div>
-                    <div className="pt-8">
-                      <p className="text-xs text-gray-600">
+                    <div className="flex items-start space-x-3 py-3">
+                      <div
+                        className="text-base text-gray-800 line-clamp-4 flex-1"
+                        dangerouslySetInnerHTML={{ __html: note.note_content }}
+                      />
+                    </div>
+                    <div className="flex items-center space-x-3 pt-3 -mx-6 px-6">
+                      <p className="text-sm text-gray-600">
                         Last Updated: {new Date(note.last_update).toLocaleString()}
                       </p>
                     </div>
@@ -158,7 +157,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Modal for Edit/Delete with Animation */}
         <AnimatePresence>
           {isModalOpen && selectedNote && (
             <motion.div
@@ -169,7 +167,7 @@ export default function Dashboard() {
               transition={{ duration: 0.3 }}
             >
               <motion.div
-                className="bg-white p-6 rounded-lg w-full max-w-md border-1 border-black"
+                className="bg-white p-6 rounded-lg w-full max-w-md border border-black"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
@@ -186,14 +184,7 @@ export default function Dashboard() {
                     required
                     className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white"
                   />
-                  <textarea
-                    value={noteContent}
-                    onChange={(e) => setNoteContent(e.target.value)}
-                    placeholder="Note Content"
-                    required
-                    className="w-full px-4 py-2 rounded-lg bg-white text-black border border-gray-600 focus:outline-none focus:ring-2 focus:ring-white" // Fixed typo 'bg-whie' to 'bg-white'
-                    rows={4}
-                  />
+                  <TiptapEditor content={noteContent} onChange={setNoteContent} />
                   <div className="flex space-x-4">
                     <button
                       type="submit"
